@@ -1105,11 +1105,21 @@ html::-webkit-scrollbar {
   grid-template-columns: 62px 1fr;
   gap: 18px;
   padding-bottom: 36px;
-  opacity: 0.38;
   cursor: pointer;
+}
+.step .num,
+.step .org,
+.step .date,
+.step .role,
+.step .meta {
+  opacity: 0.38;
   transition: opacity 0.35s;
 }
-.step.active {
+.step.active .num,
+.step.active .org,
+.step.active .date,
+.step.active .role,
+.step.active .meta {
   opacity: 1;
 }
 .step:not(:last-child)::before {

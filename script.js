@@ -126,7 +126,7 @@
       // Reset posisi scroll track saat ganti tab
       track.style.transform = "translateX(0px)";
       track.dataset.scrollPos = 0;
-    })
+    }),
   );
 
   // Logika Scroll Horizontal Smooth (Sticky)
@@ -138,7 +138,7 @@
 
     const rect = pfSection.getBoundingClientRect();
     const maxScroll = pfSection.offsetHeight - window.innerHeight;
-    
+
     // Hitung progress scroll (0.0 sampai 1.0)
     let progress = Math.max(0, Math.min(1, -rect.top / maxScroll));
 
@@ -157,24 +157,32 @@
   };
 
   // Event listener dengan requestAnimationFrame untuk performa 60fps
-  addEventListener("scroll", () => {
-    if (!isTicking) {
-      window.requestAnimationFrame(updateHorizontalScroll);
-      isTicking = true;
-    }
-  }, { passive: true });
+  addEventListener(
+    "scroll",
+    () => {
+      if (!isTicking) {
+        window.requestAnimationFrame(updateHorizontalScroll);
+        isTicking = true;
+      }
+    },
+    { passive: true },
+  );
 
   // Tombol panah manual (opsional, akan menimpa animasi scroll sedikit)
   const step = () => (track.firstElementChild?.offsetWidth || 500) + 24;
-  
+
   $(".prev").onclick = () => {
-    const currentTranslate = new WebKitCSSMatrix(getComputedStyle(track).transform).m41;
+    const currentTranslate = new WebKitCSSMatrix(
+      getComputedStyle(track).transform,
+    ).m41;
     const newTranslate = Math.min(0, currentTranslate + step());
     track.style.transform = `translateX(${newTranslate}px)`;
   };
-  
+
   $(".next").onclick = () => {
-    const currentTranslate = new WebKitCSSMatrix(getComputedStyle(track).transform).m41;
+    const currentTranslate = new WebKitCSSMatrix(
+      getComputedStyle(track).transform,
+    ).m41;
     const maxTranslate = track.scrollWidth - track.clientWidth;
     const newTranslate = Math.max(-maxTranslate, currentTranslate - step());
     track.style.transform = `translateX(${newTranslate}px)`;
@@ -249,15 +257,36 @@
     ph.addEventListener("pointerleave", () => ph.classList.remove("on"));
   }
 
-  /* Timeline: item aktif berganti saat di-hover / diklik */
+  /* Timeline: item aktif berganti mengikuti scroll di dalam daftar */
   $$(".steps").forEach((list) => {
-    const items = $$(".step", list);
-    const act = (el) =>
-      items.forEach((i) => i.classList.toggle("active", i === el));
-    items.forEach((i) => {
-      i.addEventListener("mouseenter", () => act(i));
-      i.addEventListener("click", () => act(i));
+    const steps = $$(".step", list);
+    const maxScroll = () => list.scrollHeight - list.clientHeight;
+    const act = (idx) =>
+      steps.forEach((s, i) => s.classList.toggle("active", i === idx));
+
+    const update = () => {
+      const max = maxScroll();
+      if (max <= 0) return; // daftar muat semua, tidak ada scroll
+      const idx = Math.round((list.scrollTop / max) * (steps.length - 1));
+      act(idx);
+    };
+
+    steps.forEach((s, i) => {
+      s.addEventListener("click", () => {
+        act(i);
+        const max = maxScroll();
+        if (max > 0) {
+          list.scrollTo({
+            top: (i / (steps.length - 1)) * max,
+            behavior: "smooth",
+          });
+        }
+      });
     });
+
+    list.addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    update();
   });
 
   /* Efek zoom menembus huruf PORTOFOLIO (mask SVG: huruf = lubang ke latar putih) */
