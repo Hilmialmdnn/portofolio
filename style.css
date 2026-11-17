@@ -912,14 +912,14 @@ html::-webkit-scrollbar {
 
 /* About hero: 3 kolom seperti referensi */
 .about-hero {
-  width: min(1500px, 100vw);
-  margin-left: calc(50% - min(750px, 50vw));
+  width: min(1400px, 100vw);
+  margin-left: calc(50% - min(700px, 50vw));
   min-height: 100vh;
   padding: 0 28px;
   display: grid;
-  grid-template-columns: 1fr minmax(300px, 0.85fr) 1fr;
+  grid-template-columns: 1.1fr 1fr;
   align-items: center;
-  column-gap: 0;
+  column-gap: 80px;
 }
 .ah-left {
   position: relative;
